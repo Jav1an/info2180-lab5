@@ -1,29 +1,34 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const heading = document.querySelector("header h1");
-    heading.style.color = "#fff";
-    heading.style.transition = "all 2s ease-in-out";
+window.addEventListener('load', () => {
+    const countryBtn = document.getElementById("lookupCountry");
+    const cityBtn = document.querySelector("#lookupCity");
+    const resultDiv = document.querySelector("#result");
+    const inputField = document.querySelector("#country");
 
-    const resultDiv = document.querySelector("div#result");
+    const fetchData = (lookupType) => {
+        const userInput = inputField.value.trim();
+        const url = `world.php?country=${userInput}&lookup=${lookupType}`;
 
-    const performAjaxCall = (url, event) => {
-        event.preventDefault();
-        fetch(url, { method: 'GET' })
-            .then(resp => resp.text())
-            .then(info => {
-                resultDiv.innerHTML = info;
+        fetch(url)
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    return Promise.reject('Something was wrong with the fetch request!');
+                }
             })
-            .catch(error => console.error('Error:', error));
+            .then(data => {
+                resultDiv.innerHTML = data;
+            })
+            .catch(error => console.log(`ERROR HAS OCCURRED: ${error}`));
     };
 
-    const addButtonClickListener = (buttonId, context) => {
-        const button = document.querySelector(`button#${buttonId}`);
-        button.addEventListener("click", (event) => {
-            const sanitizedVal = document.querySelector("input#country").value.replace(/[-&\/\\#,+()$@|~%!.'":;*?<>{}]/g, '');
-            const sanitizedUrl = `world.php?country=${encodeURIComponent(sanitizedVal)}${context ? `&context=${context}` : ''}`;
-            performAjaxCall(sanitizedUrl, event);
-        });
-    };
+    countryBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        fetchData("country");
+    });
 
-    addButtonClickListener("lookup");
-    addButtonClickListener("citylookup", "cities");
+    cityBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        fetchData("city");
+    });
 });
