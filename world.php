@@ -60,17 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             : "SELECT * FROM countries WHERE name LIKE :userInput";
 
         $params = [':userInput' => "%$userInput%"];
-        $results = fetchData($conn, $query, $params);
-
-        echo "<h2>Results</h2>";
-        echo "<hr>";
-
-        if (count($results) > 0) {
-            displayResults($results, ['name', 'continent', 'independence_year', 'head_of_state']);
-        } else {
-            echo "<p>No Results Found</p>";
-            echo "<p>Enter a valid country or check spelling.</p>";
-        }
+        $columns = ['name', 'continent', 'independence_year', 'head_of_state'];
     }
 
     if ($lookup == "city") {
@@ -79,17 +69,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             : "SELECT cities.name, cities.district, cities.population FROM cities INNER JOIN countries ON countries.code = cities.country_code WHERE countries.name LIKE :userInput";
 
         $params = [':userInput' => "%$userInput%"];
-        $results = fetchData($conn, $query, $params);
+        $columns = ['name', 'district', 'population'];
+    }
 
-        echo "<h2>Results</h2>";
-        echo "<hr>";
+    echo "<h2>Results</h2>";
+    echo "<hr>";
 
-        if (count($results) > 0) {
-            displayResults($results, ['name', 'district', 'population']);
-        } else {
-            echo "<p>No Results Found</p>";
-            echo "<p>Enter a valid country or check spelling.</p>";
-        }
+    $results = fetchData($conn, $query, $params);
+
+    if (count($results) > 0) {
+        displayResults($results, $columns);
+    } else {
+        echo "<p>No Results Found</p>";
+        echo "<p>Enter a valid input or check spelling.</p>";
     }
 }
 ?>
